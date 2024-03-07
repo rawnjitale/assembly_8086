@@ -1,48 +1,57 @@
-title
+title to input number
 .model small
-.stack 100h
+.stack 200h
 .data
- num db ?
- msg db "Enter the number: $"
-
+count db 0
+num db 0
+sum dw 0
 .code
 main proc
 mov ax,@data
 mov ds,ax
-mov ah,09h
-lea dx,msg
-int 21h
+mov cx,03h
+mov si,offset num
+;reading a number from user input
+l1:
 mov ah,01h
-lea dx,num
 int 21h
-cmp al,10
-je display_sum
-display_sum:
-mov ch,0
-mov ax,0
-mov cl,num
-l1:add ax,cx
-cmp cx,00
-je disp
+cmp al,0dh
+je lp
+sub al,30h
+push ax
+mov al,10
+mul num
+mov num,al
+pop ax
+add num,al
+inc count
 jmp l1
-disp:
-mov bx,0
+lp:
+mov bh,00
+mov bl,num
+calculate:
+add sum,bx
+dec bx
+jnz calculate
 mov cx,10
-back:
+mov ax,sum
+mov bx,0
+l4:
 mov dx,0
 div cx
 add dx,30h
 push dx
 inc bx
 cmp ax,0
-ja back
+ja l4
 mov ah,02h
 mov cx,bx
-l4:
+display:
 pop dx
 int 21h
-loop l4
+loop display
 
 mov ah,4ch
+int 21h
 main endp
 end
